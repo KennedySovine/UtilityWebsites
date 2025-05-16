@@ -14,17 +14,17 @@ function calculateTea() {
         sizeOz = sizeInput * 33.814;
     }
     // Recipe ratios (per 128 oz):
-    // 1 pinch baking soda, 3 family-size tea bags, 1 cup sugar, water to fill
+    // 1 pinch baking soda, 9 regular tea bags, 1 cup sugar, water to fill
     const ratio = sizeOz / 128;
     const bakingSoda = ratio < 1 ? 'a small pinch' : `${(ratio).toFixed(2)} pinches`;
-    const teaBags = (3 * ratio).toFixed(2);
+    const regularTeaBags = (9 * ratio).toFixed(2);
     const sugarCups = (1 * ratio).toFixed(2);
     const water = sizeOz;
 
     document.getElementById('result').innerHTML = `
         <strong>For ${sizeInput} ${unit === 'oz' ? 'oz' : unit === 'gal' ? 'gallon(s)' : 'litre(s)'} of sweet tea:</strong><br>
         Baking Soda: <b>${bakingSoda}</b> (Optional)<br>
-        Family-size Tea Bags: <b>${teaBags}</b><br>
+        Regular Tea Bags: <b>${regularTeaBags}</b><br>
         Sugar: <b>${sugarCups} cups</b><br>
         Water: <b>${water.toFixed(2)} oz</b>
     `;
@@ -35,7 +35,7 @@ function calculateTea() {
     document.getElementById('dynamicInstructions').innerHTML = `
         <strong>Instructions</strong><br>
         Boil <b>${halfWater} oz</b> of the water on stove in a pot. Once water comes to a roiling boil, pour into your container.<br><br>
-        Add <b>${teaBags}</b> family-size tea bags and <b>${bakingSoda}</b> of baking soda (you don’t need to stir) to the container. Just make sure the bags are submerged in the water.<br><br>
+        Add <b>${regularTeaBags}</b> regular tea bags and <b>${bakingSoda}</b> of baking soda (you don’t need to stir) to the container. Just make sure the bags are submerged in the water.<br><br>
         Set your kitchen timer for 15 minutes. After 15 minutes, take out tea bags. Do not squish tea bags before taking them out, just let them drip for a minute.<br><br>
         Add <b>${sugarCups} cups</b> sugar and stir.<br><br>
         Add the other <b>${halfWater} oz</b> of cold water to the container and stir again.<br><br>
