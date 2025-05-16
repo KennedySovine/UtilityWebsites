@@ -1,0 +1,61 @@
+body { font-family: Arial, sans-serif; margin: 2em; }
+.container { flex: 1 1 60%; max-width: 400px; margin: auto; }
+.instructions {
+    background: #ffe4b5;
+    border: 2px solid #d2a86a;
+    border-radius: 10px;
+    padding: 1.5em;
+    margin-bottom: 2em;
+    font-size: 1.1em;
+}
+label, input, button { display: block; width: 100%; margin-bottom: 1em; }
+.result { background: #f9f9f9; padding: 1em; border-radius: 8px; }
+.unit-options {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1em;
+}
+.unit-options label {
+    display: inline-block !important;
+    width: auto !important;
+    margin-right: 1em;
+    margin-bottom: 0;
+}
+
+.main-flex {
+    display: flex;
+    justify-content: center; /* Center the flex items as a group */
+    align-items: flex-start;
+    gap: 2em; /* Space between the two columns */
+    max-width: 900px; /* Limit total width */
+    margin: 2em auto; /* Center on page */
+}
+
+#dynamicInstructions {
+    flex: 1 1 40%;
+    min-width: 250px;
+    max-width: 350px;
+}
+
+@media (max-width: 700px) {
+    .main-flex {
+        flex-direction: column;
+        gap: 0;
+        max-width: 100%;
+    }
+    .container, #dynamicInstructions {
+        max-width: 100%;
+        min-width: 0;
+    }
+    #dynamicInstructions {
+        margin-top: 1.5em;
+    }
+    .unit-options {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .unit-options label {
+        margin-right: 0.5em;
+        margin-bottom: 0.5em;
+    }
+}

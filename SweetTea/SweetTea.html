@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sweet Tea Calculator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="main-flex">
+        <div class="container">
+            <div class="instructions">
+                <strong>How to use:</strong><br>
+                Enter your container size in ounces and click "Calculate" to see how much baking soda, tea bags, sugar, and water you need for perfect Southern sweet tea.<br>
+            </div>
+            <h1>Sweet Tea Calculator</h1>
+            <label for="containerSize">Container Size:</label>
+            <input type="number" id="containerSize" min="1" placeholder="Enter amount" value="128" />
+            <div class="unit-options" style="margin-bottom:1em;">
+                <label><input type="radio" name="unit" value="oz" checked> Ounces</label>
+                <label><input type="radio" name="unit" value="gal"> Gallons</label>
+                <label><input type="radio" name="unit" value="l"> Litres</label>
+            </div>
+            <button onclick="calculateTea()">Calculate</button>
+            <div id="result" class="result"></div>
+        </div>
+        <div id="dynamicInstructions" class="instructions" style="background:#e7f3ff; border-color:#7bb1e7; margin-top:2em;">
+            <!-- Dynamic instructions will be inserted here -->
+        </div>
+    </div>
+    <script src="sweet-tea.js"></script>
+</body>
+</html>
