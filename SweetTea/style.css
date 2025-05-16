@@ -59,3 +59,28 @@ label, input, button { display: block; width: 100%; margin-bottom: 1em; }
         margin-bottom: 0.5em;
     }
 }
+
+/* Responsive styles for iPhone 16 and similar devices */
+@media (max-width: 430px) {
+    .main-flex, .container {
+        max-width: 100vw;
+        width: 100vw;
+        box-sizing: border-box;
+        padding: 0.5em;
+    }
+    .container {
+        margin: 0;
+        border-radius: 0;
+        box-shadow: none;
+    }
+    .instructions, #dynamicInstructions {
+        font-size: 1em;
+        padding: 0.5em;
+    }
+    h1 {
+        font-size: 1.5em;
+    }
+    label, input, button {
+        font-size: 1em;
+    }
+}
