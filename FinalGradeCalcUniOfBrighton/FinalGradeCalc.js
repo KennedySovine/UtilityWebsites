@@ -163,16 +163,21 @@ function parseGradeData(text) {
             if (numberPart && numberPart[1].startsWith('4')) {
                 continue;
             }
-            
-            const numericMark = parseInt(mark);
+              const numericMark = parseInt(mark);
             const numericCredits = parseFloat(credits);
             const moduleLevel = parseInt(level);
             
             if (numericMark >= 0 && numericMark <= 100 && numericCredits > 0) {
+                // Default to 20 credits for all modules except final year projects
+                let finalCredits = 20;
+                if (moduleLevel === 6 && moduleName.toLowerCase().includes('project')) {
+                    finalCredits = numericCredits; // Keep original credits for final projects
+                }
+                
                 const module = {
                     name: `${moduleCodeUpper} - ${moduleName.trim()}`,
                     grade: numericMark,
-                    credits: numericCredits
+                    credits: finalCredits
                 };
                 
                 if (moduleLevel === 6) {
@@ -193,19 +198,24 @@ function parseGradeData(text) {
             if (numberPart && numberPart[1].startsWith('4')) {
                 continue;
             }
-            
-            const numericMark = parseInt(mark);
+              const numericMark = parseInt(mark);
             const moduleLevel = parseInt(level);
             
             // Extract credits from the rest of the line if available
             const creditMatch = line.match(/([\d.]+)$/);
-            const credits = creditMatch ? parseFloat(creditMatch[1]) : 20.0; // Default to 20 if not found
+            const extractedCredits = creditMatch ? parseFloat(creditMatch[1]) : 20.0;
+            
+            // Default to 20 credits for all modules except final year projects
+            let finalCredits = 20;
+            if (moduleLevel === 6 && moduleName.toLowerCase().includes('project')) {
+                finalCredits = extractedCredits; // Keep original credits for final projects
+            }
             
             if (numericMark >= 0 && numericMark <= 100) {
                 const module = {
                     name: `${moduleCodeUpper} - ${moduleName.trim()}`,
                     grade: numericMark,
-                    credits: credits
+                    credits: finalCredits
                 };
                 
                 if (moduleLevel === 6) {
@@ -226,15 +236,20 @@ function parseGradeData(text) {
             if (numberPart && numberPart[1].startsWith('4')) {
                 continue;
             }
-            
-            const numericMark = parseInt(mark);
+              const numericMark = parseInt(mark);
             const moduleLevel = parseInt(level);
             
             if (numericMark >= 0 && numericMark <= 100) {
+                // Default to 20 credits for all modules except final year projects
+                let finalCredits = 20;
+                if (moduleLevel === 6 && moduleName.toLowerCase().includes('project')) {
+                    finalCredits = 40; // Default final project credits
+                }
+                
                 const module = {
                     name: `${moduleCodeUpper} - ${moduleName.trim()}`,
                     grade: numericMark,
-                    credits: 20.0 // Default credits
+                    credits: finalCredits
                 };
                 
                 if (moduleLevel === 6) {
