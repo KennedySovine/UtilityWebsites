@@ -212,31 +212,37 @@ function parseGradeData(text) {
             line.match(/^0[1-9]\s+/) || // Skip lines starting with 01, 02, etc.
             line.includes('currently unavailable')) {
             continue;
-        }
-          // Case-insensitive pattern for table format: "2023/24 CI587 Web based game development 5} 78 A P 1 20.0"
-        // Also handle "Ci517" (lowercase) and missing "}" character
-        const tableMatch = line.match(/^(\d{4}\/\d{2})\s+([A-Za-z]+\d+)\s+(.+?)\s+([56])\}?\s+(\d{1,3})\s+([A-Z]+[+-]?)\s+[PF]\s+\d+\s+([\d.]+)/i);        if (tableMatch) {
+        }        // Case-insensitive pattern for table format: "2023/24 CI514 Embedded Systems 5 30 E- F 1 0.0"
+        // Also handle OCR errors like "Cis14" instead of "CI514"
+        const tableMatch = line.match(/^(\d{4}\/\d{2})\s+([A-Za-z]+\d+)\s+(.+?)\s+([56])\s+(\d{1,3})\s+([A-Z]+[+-]?)\s+[PF]\s+\d+\s+([\d.]+)/i);
+        if (tableMatch) {
             const [, year, moduleCode, moduleName, level, mark, grade, credits] = tableMatch;
             
+            // Normalize module code to handle OCR errors
+            let normalizedCode = moduleCode.toUpperCase();
+            // Convert "CIS14" to "CI514", "CI14" to "CI514", etc.
+            if (normalizedCode.match(/^CI[S]?\d{2}$/)) {
+                normalizedCode = normalizedCode.replace(/^CIS(\d{2})$/, 'CI5$1');
+                normalizedCode = normalizedCode.replace(/^CI(\d{2})$/, 'CI5$1');
+            }
+            
             // Skip modules where the 3-digit number starts with 4 (ignore first 2 letters)
-            const moduleCodeUpper = moduleCode.toUpperCase();
-            const numberPart = moduleCodeUpper.match(/(\d{3})$/);
+            const numberPart = normalizedCode.match(/(\d{3})$/);
             if (numberPart && numberPart[1].startsWith('4')) {
                 continue;
             }
-              const numericMark = parseInt(mark);
+            
+            const numericMark = parseInt(mark);
             const numericCredits = parseFloat(credits);
             const moduleLevel = parseInt(level);
             
-            if (numericMark >= 0 && numericMark <= 100 && numericCredits > 0) {
-                // Default to 20 credits for all modules except final year projects
-                let finalCredits = 20;
-                if (moduleLevel === 6 && moduleName.toLowerCase().includes('project')) {
-                    finalCredits = numericCredits; // Keep original credits for final projects
-                }
+            // Accept modules with 0 or more credits (changed from > 0 to >= 0)
+            if (numericMark >= 0 && numericMark <= 100 && numericCredits >= 0) {
+                // Keep original credits (including 0) for proper compensated credit handling
+                let finalCredits = numericCredits;
                 
                 const module = {
-                    name: `${moduleCodeUpper} - ${moduleName.trim()}`,
+                    name: `${normalizedCode} - ${moduleName.trim()}`,
                     grade: numericMark,
                     credits: finalCredits
                 };
@@ -369,6 +375,9 @@ async function populateModules(level5Modules, level6Modules) {
             }
             module.credits = result.credits;
             module.grade = result.grade;
+        } else {
+            // Default to 20 credits for normal Level 5 modules
+            module.credits = 20;
         }
         
         addClassRow('l5-list');
@@ -391,6 +400,15 @@ async function populateModules(level5Modules, level6Modules) {
             }
             module.credits = result.credits;
             module.grade = result.grade;
+        } else {
+            // Set appropriate credits for Level 6 modules
+            if (module.name.toLowerCase().includes('project')) {
+                // Keep original credits for projects (usually 40)
+                module.credits = module.credits > 0 ? module.credits : 40;
+            } else {
+                // Default to 20 credits for normal Level 6 modules
+                module.credits = 20;
+            }
         }
         
         // Check if this might be the final project
