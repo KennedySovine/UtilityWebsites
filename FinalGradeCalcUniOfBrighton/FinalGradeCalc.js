@@ -10,6 +10,68 @@ function addClassRow(listId, isDefault = false, defaultName = '', defaultCredits
         <input type="number" min="0" placeholder="Credits" class="mod-credits" required value="${defaultCredits}" />
         ${removeButton}
     `;
+    
+    // Add event listener for credits input to check for 0 credits
+    const creditsInput = row.querySelector('.mod-credits');
+    const nameInput = row.querySelector('.mod-name');
+    const markInput = row.querySelector('.mod-mark');
+    
+    creditsInput.addEventListener('change', async function() {
+        console.log('Credits changed to:', this.value);
+        if (this.value === '0' || this.value === '0.0') {
+            const moduleName = nameInput.value || 'Unknown Module';
+            const moduleGrade = markInput.value || '0';
+            
+            console.log('Zero credits detected for:', moduleName, 'with grade:', moduleGrade);
+            
+            // Show dialog even if module has no name
+            console.log('Showing compensated credit dialog');
+            const result = await handleCompensatedCredit(moduleName, moduleGrade || '0');
+            console.log('Dialog result:', result);
+            
+            if (result.include) {
+                this.value = result.credits;
+                if (result.grade && result.grade !== '0') {
+                    markInput.value = result.grade;
+                }
+            } else {
+                // User chose to exclude - remove the row if not default
+                if (!isDefault) {
+                    row.remove();
+                } else {
+                    // Clear the default row
+                    nameInput.value = defaultName;
+                    markInput.value = '';
+                    this.value = defaultCredits;
+                }
+            }
+        }
+    });
+    
+    // Also add blur event as backup
+    creditsInput.addEventListener('blur', async function() {
+        if (this.value === '0' || this.value === '0.0') {
+            const moduleName = nameInput.value || 'Unknown Module';
+            const moduleGrade = markInput.value || '0';
+            
+            const result = await handleCompensatedCredit(moduleName, moduleGrade || '0');
+            if (result.include) {
+                this.value = result.credits;
+                if (result.grade && result.grade !== '0') {
+                    markInput.value = result.grade;
+                }
+            } else {
+                if (!isDefault) {
+                    row.remove();
+                } else {
+                    nameInput.value = defaultName;
+                    markInput.value = '';
+                    this.value = defaultCredits;
+                }
+            }
+        }
+    });
+    
     if (!isDefault) {
         row.querySelector('.remove-btn').onclick = () => row.remove();
     }
@@ -117,12 +179,11 @@ async function processGradeSheet(imageFile) {
         const { level5Modules, level6Modules } = parseGradeData(text);
         
         console.log('Parsed modules:', { level5Modules, level6Modules });
-        
-        // Clear existing modules except the default Final Project
+          // Clear existing modules except the default Final Project
         clearModules();
         
-        // Add parsed modules
-        populateModules(level5Modules, level6Modules);
+        // Add parsed modules (now async due to compensated credit warnings)
+        await populateModules(level5Modules, level6Modules);
         
         statusDiv.textContent = `Success! Found ${level5Modules.length} Level 5 and ${level6Modules.length} Level 6 modules.`;
         statusDiv.className = 'ocr-status success';
@@ -297,21 +358,41 @@ function clearModules() {
     addClassRow('l6-list', true, 'Final Project', '40');
 }
 
-function populateModules(level5Modules, level6Modules) {
-    // Add Level 5 modules
-    level5Modules.forEach(module => {
+async function populateModules(level5Modules, level6Modules) {
+    // Process Level 5 modules
+    for (const module of level5Modules) {
+        // Check for zero credits and handle compensated credit
+        if (module.credits === 0) {
+            const result = await handleCompensatedCredit(module.name, module.grade);
+            if (!result.include) {
+                continue; // Skip this module
+            }
+            module.credits = result.credits;
+            module.grade = result.grade;
+        }
+        
         addClassRow('l5-list');
         const rows = document.getElementById('l5-list').querySelectorAll('.class-row');
         const lastRow = rows[rows.length - 1];
         lastRow.querySelector('.mod-name').value = module.name;
         lastRow.querySelector('.mod-mark').value = module.grade;
         lastRow.querySelector('.mod-credits').value = module.credits;
-    });
+    }
     
-    // Add Level 6 modules
+    // Process Level 6 modules
     let finalProjectUpdated = false;
     
-    level6Modules.forEach(module => {
+    for (const module of level6Modules) {
+        // Check for zero credits and handle compensated credit
+        if (module.credits === 0) {
+            const result = await handleCompensatedCredit(module.name, module.grade);
+            if (!result.include) {
+                continue; // Skip this module
+            }
+            module.credits = result.credits;
+            module.grade = result.grade;
+        }
+        
         // Check if this might be the final project
         const isFinalProject = module.name.toLowerCase().includes('project') && 
                               module.credits >= 30;
@@ -324,7 +405,7 @@ function populateModules(level5Modules, level6Modules) {
                 finalProjectRow.querySelector('.mod-mark').value = module.grade;
                 finalProjectRow.querySelector('.mod-credits').value = module.credits;
                 finalProjectUpdated = true;
-                return;
+                continue;
             }
         }
         
@@ -335,10 +416,107 @@ function populateModules(level5Modules, level6Modules) {
         lastRow.querySelector('.mod-name').value = module.name;
         lastRow.querySelector('.mod-mark').value = module.grade;
         lastRow.querySelector('.mod-credits').value = module.credits;
-    });
+    }
     
     // Ensure we have at least one regular row for Level 5 if empty
     if (level5Modules.length === 0) {
         addClassRow('l5-list');
     }
+}
+
+// Function to handle compensated credit warnings
+async function handleCompensatedCredit(moduleName, originalGrade) {
+    return new Promise((resolve) => {
+        // Remove any existing modals first
+        const existingModals = document.querySelectorAll('[id^="modal-"]');
+        existingModals.forEach(modal => modal.remove());
+        
+        const modalId = 'modal-' + Date.now();
+        let resolved = false; // Prevent multiple resolutions
+        
+        const modal = document.createElement('div');
+        modal.id = modalId;
+        modal.style.cssText = `
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); display: flex; align-items: center;
+            justify-content: center; z-index: 1000;
+        `;
+        
+        const dialog = document.createElement('div');
+        dialog.style.cssText = `
+            background: white; padding: 2em; border-radius: 10px; max-width: 500px;
+            text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        `;
+        
+        dialog.innerHTML = `
+            <h3>⚠️ Zero Credits Detected</h3>
+            <p><strong>${moduleName}</strong></p>
+            <p>This module shows 0 credits. Did you receive <strong>compensated credit</strong> for this module?</p>
+            <p><em>Compensated credit means you passed despite a low grade due to strong performance in other modules.</em></p>
+        `;
+        
+        // Create buttons
+        const yesButton = document.createElement('button');
+        yesButton.textContent = `Yes - Use Grade (${originalGrade}) with 20 Credits`;
+        yesButton.style.cssText = 'background: #4caf50; color: white; border: none; padding: 0.7em 1.5em; margin: 0.5em 0.25em; border-radius: 5px; cursor: pointer; display: block; width: 100%; margin-bottom: 10px;';
+        
+        const noButton = document.createElement('button');
+        noButton.textContent = 'No - Exclude Module';
+        noButton.style.cssText = 'background: #f44336; color: white; border: none; padding: 0.7em 1.5em; margin: 0.5em 0.25em; border-radius: 5px; cursor: pointer; display: block; width: 100%;';
+        
+        // Function to close modal and resolve
+        function closeAndResolve(result) {
+            if (resolved) return; // Prevent multiple calls
+            resolved = true;
+            
+            console.log('Closing modal with result:', result);
+            
+            // Force remove modal immediately
+            modal.style.display = 'none';
+            setTimeout(() => {
+                if (modal.parentNode) {
+                    modal.parentNode.removeChild(modal);
+                }
+            }, 0);
+            
+            resolve(result);
+        }
+        
+        // Add event listeners
+        yesButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Yes button clicked');
+            closeAndResolve({ include: true, credits: 20, grade: originalGrade });
+        });
+        
+        noButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('No button clicked');
+            closeAndResolve({ include: false });
+        });
+        
+        // Append buttons to dialog
+        dialog.appendChild(yesButton);
+        dialog.appendChild(noButton);
+        
+        modal.appendChild(dialog);
+        document.body.appendChild(modal);
+        
+        // Click outside to close
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                console.log('Modal background clicked');
+                closeAndResolve({ include: false });
+            }
+        });
+        
+        // Prevent dialog clicks from bubbling
+        dialog.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+        
+        console.log('Modal created and added to DOM with ID:', modalId);
+    });
 }
