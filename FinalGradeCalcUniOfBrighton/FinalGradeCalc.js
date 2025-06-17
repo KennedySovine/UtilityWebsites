@@ -154,13 +154,13 @@ function parseGradeData(text) {
         }
           // Case-insensitive pattern for table format: "2023/24 CI587 Web based game development 5} 78 A P 1 20.0"
         // Also handle "Ci517" (lowercase) and missing "}" character
-        const tableMatch = line.match(/^(\d{4}\/\d{2})\s+([A-Za-z]+\d+)\s+(.+?)\s+([56])\}?\s+(\d{1,3})\s+([A-Z]+[+-]?)\s+[PF]\s+\d+\s+([\d.]+)/i);
-        if (tableMatch) {
+        const tableMatch = line.match(/^(\d{4}\/\d{2})\s+([A-Za-z]+\d+)\s+(.+?)\s+([56])\}?\s+(\d{1,3})\s+([A-Z]+[+-]?)\s+[PF]\s+\d+\s+([\d.]+)/i);        if (tableMatch) {
             const [, year, moduleCode, moduleName, level, mark, grade, credits] = tableMatch;
             
-            // Skip modules starting with CI4 or where first digit of 3-digit number is 4
+            // Skip modules where the 3-digit number starts with 4 (ignore first 2 letters)
             const moduleCodeUpper = moduleCode.toUpperCase();
-            if (moduleCodeUpper.match(/^CI4\d+$/) || moduleCodeUpper.match(/^[A-Z]+4\d+$/)) {
+            const numberPart = moduleCodeUpper.match(/(\d{3})$/);
+            if (numberPart && numberPart[1].startsWith('4')) {
                 continue;
             }
             
@@ -184,13 +184,13 @@ function parseGradeData(text) {
             continue;
         }
           // More flexible pattern to catch variations: "2023/24 Ci517 Game Engine Fundamentals 5 65 B P 1 20.0"
-        const flexibleMatch = line.match(/^(\d{4}\/\d{2})\s+([A-Za-z]+\d+)\s+(.+?)\s+([56])\s+(\d{1,3})\s+([A-Z]+[+-]?)/i);
-        if (flexibleMatch) {
+        const flexibleMatch = line.match(/^(\d{4}\/\d{2})\s+([A-Za-z]+\d+)\s+(.+?)\s+([56])\s+(\d{1,3})\s+([A-Z]+[+-]?)/i);        if (flexibleMatch) {
             const [, year, moduleCode, moduleName, level, mark, grade] = flexibleMatch;
             
-            // Skip modules starting with CI4 or where first digit of 3-digit number is 4
+            // Skip modules where the 3-digit number starts with 4 (ignore first 2 letters)
             const moduleCodeUpper = moduleCode.toUpperCase();
-            if (moduleCodeUpper.match(/^CI4\d+$/) || moduleCodeUpper.match(/^[A-Z]+4\d+$/)) {
+            const numberPart = moduleCodeUpper.match(/(\d{3})$/);
+            if (numberPart && numberPart[1].startsWith('4')) {
                 continue;
             }
             
@@ -217,13 +217,13 @@ function parseGradeData(text) {
             continue;
         }
           // Even more lenient pattern for edge cases
-        const lenientMatch = line.match(/(\d{4}\/\d{2})\s+([A-Za-z]+\d+)\s+(.+?)\s+([56]).*?(\d{1,3})\s+([A-Z]+[+-]?)/i);
-        if (lenientMatch) {
+        const lenientMatch = line.match(/(\d{4}\/\d{2})\s+([A-Za-z]+\d+)\s+(.+?)\s+([56]).*?(\d{1,3})\s+([A-Z]+[+-]?)/i);        if (lenientMatch) {
             const [, year, moduleCode, moduleName, level, mark, grade] = lenientMatch;
             
-            // Skip modules starting with CI4 or where first digit of 3-digit number is 4
+            // Skip modules where the 3-digit number starts with 4 (ignore first 2 letters)
             const moduleCodeUpper = moduleCode.toUpperCase();
-            if (moduleCodeUpper.match(/^CI4\d+$/) || moduleCodeUpper.match(/^[A-Z]+4\d+$/)) {
+            const numberPart = moduleCodeUpper.match(/(\d{3})$/);
+            if (numberPart && numberPart[1].startsWith('4')) {
                 continue;
             }
             
