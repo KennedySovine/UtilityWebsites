@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brighton Uni Final Grade Calculator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title>Brighton Uni Final Grade Calculator</title>
+    <script src="https://unpkg.com/tesseract.js@4.1.1/dist/tesseract.min.js"></script>
     <link rel="stylesheet" href="../SweetTea/style.css">
     <style>
         .level-section { margin-bottom: 2em; }
@@ -12,15 +12,29 @@
         .class-row .mod-mark, .class-row .mod-credits { width: 6em; }
         .remove-btn { background: #e57373; color: #fff; border: none; border-radius: 4px; padding: 0.2em 0.7em; cursor: pointer; }
         .remove-btn:hover { background: #c62828; }
-        .add-btn { background: #4caf50; color: #fff; border: none; border-radius: 4px; padding: 0.4em 1em; cursor: pointer; margin-bottom: 1em; }
-        .add-btn:hover { background: #388e3c; }
+        .add-btn { background: #4caf50; color: #fff; border: none; border-radius: 4px; padding: 0.4em 1em; cursor: pointer; margin-bottom: 1em; }        .add-btn:hover { background: #388e3c; }
         .result { font-size: 1.2em; margin-top: 1.5em; }
+        .ocr-section { background: #e8f5e8; border: 2px solid #4caf50; border-radius: 8px; padding: 1em; margin-bottom: 2em; }
+        .ocr-upload { margin-bottom: 1em; }
+        .ocr-status { font-style: italic; color: #666; margin-top: 0.5em; }
+        .processing { color: #ff9800; }
+        .success { color: #4caf50; }
+        .error { color: #f44336; }
     </style>
 </head>
 <body>
-    <div class="main-flex">
-        <div class="container">
+    <div class="main-flex">        <div class="container">
             <h1>Brighton Uni Final Grade Calculator</h1>
+            
+            <div class="ocr-section">
+                <h3>📷 Auto-Fill from Transcript Image</h3>
+                <div class="ocr-upload">
+                    <input type="file" id="transcriptImage" accept="image/*" />
+                    <button type="button" id="processImage" class="add-btn">Process Transcript</button>
+                </div>
+                <div id="ocrStatus" class="ocr-status"></div>
+            </div>
+            
             <form id="gradeForm">
                 <div class="level-section" id="level5">
                     <h2>Level 5 Modules</h2>

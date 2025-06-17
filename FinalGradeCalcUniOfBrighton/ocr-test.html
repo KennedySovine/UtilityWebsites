@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCR Test</title>
+    <script src="https://unpkg.com/tesseract.js@4.1.1/dist/tesseract.min.js"></script>
+</head>
+<body>
+    <h1>OCR Test</h1>
+    <input type="file" id="imageInput" accept="image/*">
+    <button onclick="testOCR()">Test OCR</button>
+    <div id="result"></div>
+
+    <script>
+        async function testOCR() {
+            const fileInput = document.getElementById('imageInput');
+            const resultDiv = document.getElementById('result');
+            
+            if (!fileInput.files[0]) {
+                alert('Please select an image first');
+                return;
+            }
+            
+            try {
+                resultDiv.innerHTML = 'Processing...';
+                console.log('Starting OCR test...');
+                console.log('Tesseract available:', typeof Tesseract !== 'undefined');
+                
+                const { data: { text } } = await Tesseract.recognize(fileInput.files[0], 'eng');
+                
+                resultDiv.innerHTML = `<pre>${text}</pre>`;
+                console.log('Extracted text:', text);
+                
+            } catch (error) {
+                resultDiv.innerHTML = `Error: ${error.message}`;
+                console.error('OCR Error:', error);
+            }
+        }
+    </script>
+</body>
+</html>
