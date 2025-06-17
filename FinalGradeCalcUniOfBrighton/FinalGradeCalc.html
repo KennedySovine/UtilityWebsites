@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brighton Uni Final Grade Calculator</title>
+    <link rel="stylesheet" href="../SweetTea/style.css">
+    <style>
+        .level-section { margin-bottom: 2em; }
+        .class-list { margin-bottom: 1em; }        .class-row { display: flex; gap: 0.5em; margin-bottom: 0.5em; align-items: center; }
+        .class-row .mod-name { width: 12em; }
+        .class-row .mod-mark, .class-row .mod-credits { width: 6em; }
+        .remove-btn { background: #e57373; color: #fff; border: none; border-radius: 4px; padding: 0.2em 0.7em; cursor: pointer; }
+        .remove-btn:hover { background: #c62828; }
+        .add-btn { background: #4caf50; color: #fff; border: none; border-radius: 4px; padding: 0.4em 1em; cursor: pointer; margin-bottom: 1em; }
+        .add-btn:hover { background: #388e3c; }
+        .result { font-size: 1.2em; margin-top: 1.5em; }
+    </style>
+</head>
+<body>
+    <div class="main-flex">
+        <div class="container">
+            <h1>Brighton Uni Final Grade Calculator</h1>
+            <form id="gradeForm">
+                <div class="level-section" id="level5">
+                    <h2>Level 5 Modules</h2>
+                    <div class="class-list" id="l5-list"></div>
+                    <button type="button" class="add-btn" onclick="addClassRow('l5-list')">Add Level 5 Module</button>
+                </div>
+                <div class="level-section" id="level6">
+                    <h2>Level 6 Modules</h2>
+                    <div class="class-list" id="l6-list"></div>
+                    <button type="button" class="add-btn" onclick="addClassRow('l6-list')">Add Level 6 Module</button>
+                </div>
+                <button type="submit">Calculate Final Grade</button>
+            </form>
+            <div class="result" id="result"></div>
+        </div>
+        <div id="dynamicInstructions" class="instructions">
+            <h3>Instructions</h3>
+            <ul>
+                <li>Add all your Level 5 and Level 6 modules.</li>
+                <li>Enter the final mark and credit value for each module.</li>
+                <li>Click "Calculate Final Grade" to see your weighted average and final grade.</li>
+                <li>Level 5 counts for 25%, Level 6 for 75% of your final grade.</li>
+            </ul>
+        </div>
+    </div>
+    <script src="FinalGradeCalc.js"></script>
+</body>
+</html>
