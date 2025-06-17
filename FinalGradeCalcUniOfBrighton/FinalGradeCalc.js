@@ -152,19 +152,25 @@ function parseGradeData(text) {
             line.includes('currently unavailable')) {
             continue;
         }
-        
-        // Case-insensitive pattern for table format: "2023/24 CI587 Web based game development 5} 78 A P 1 20.0"
+          // Case-insensitive pattern for table format: "2023/24 CI587 Web based game development 5} 78 A P 1 20.0"
         // Also handle "Ci517" (lowercase) and missing "}" character
         const tableMatch = line.match(/^(\d{4}\/\d{2})\s+([A-Za-z]+\d+)\s+(.+?)\s+([56])\}?\s+(\d{1,3})\s+([A-Z]+[+-]?)\s+[PF]\s+\d+\s+([\d.]+)/i);
         if (tableMatch) {
             const [, year, moduleCode, moduleName, level, mark, grade, credits] = tableMatch;
+            
+            // Skip modules starting with CI4 or where first digit of 3-digit number is 4
+            const moduleCodeUpper = moduleCode.toUpperCase();
+            if (moduleCodeUpper.match(/^CI4\d+$/) || moduleCodeUpper.match(/^[A-Z]+4\d+$/)) {
+                continue;
+            }
+            
             const numericMark = parseInt(mark);
             const numericCredits = parseFloat(credits);
             const moduleLevel = parseInt(level);
             
             if (numericMark >= 0 && numericMark <= 100 && numericCredits > 0) {
                 const module = {
-                    name: `${moduleCode.toUpperCase()} - ${moduleName.trim()}`,
+                    name: `${moduleCodeUpper} - ${moduleName.trim()}`,
                     grade: numericMark,
                     credits: numericCredits
                 };
@@ -177,11 +183,17 @@ function parseGradeData(text) {
             }
             continue;
         }
-        
-        // More flexible pattern to catch variations: "2023/24 Ci517 Game Engine Fundamentals 5 65 B P 1 20.0"
+          // More flexible pattern to catch variations: "2023/24 Ci517 Game Engine Fundamentals 5 65 B P 1 20.0"
         const flexibleMatch = line.match(/^(\d{4}\/\d{2})\s+([A-Za-z]+\d+)\s+(.+?)\s+([56])\s+(\d{1,3})\s+([A-Z]+[+-]?)/i);
         if (flexibleMatch) {
             const [, year, moduleCode, moduleName, level, mark, grade] = flexibleMatch;
+            
+            // Skip modules starting with CI4 or where first digit of 3-digit number is 4
+            const moduleCodeUpper = moduleCode.toUpperCase();
+            if (moduleCodeUpper.match(/^CI4\d+$/) || moduleCodeUpper.match(/^[A-Z]+4\d+$/)) {
+                continue;
+            }
+            
             const numericMark = parseInt(mark);
             const moduleLevel = parseInt(level);
             
@@ -191,7 +203,7 @@ function parseGradeData(text) {
             
             if (numericMark >= 0 && numericMark <= 100) {
                 const module = {
-                    name: `${moduleCode.toUpperCase()} - ${moduleName.trim()}`,
+                    name: `${moduleCodeUpper} - ${moduleName.trim()}`,
                     grade: numericMark,
                     credits: credits
                 };
@@ -204,17 +216,23 @@ function parseGradeData(text) {
             }
             continue;
         }
-        
-        // Even more lenient pattern for edge cases
+          // Even more lenient pattern for edge cases
         const lenientMatch = line.match(/(\d{4}\/\d{2})\s+([A-Za-z]+\d+)\s+(.+?)\s+([56]).*?(\d{1,3})\s+([A-Z]+[+-]?)/i);
         if (lenientMatch) {
             const [, year, moduleCode, moduleName, level, mark, grade] = lenientMatch;
+            
+            // Skip modules starting with CI4 or where first digit of 3-digit number is 4
+            const moduleCodeUpper = moduleCode.toUpperCase();
+            if (moduleCodeUpper.match(/^CI4\d+$/) || moduleCodeUpper.match(/^[A-Z]+4\d+$/)) {
+                continue;
+            }
+            
             const numericMark = parseInt(mark);
             const moduleLevel = parseInt(level);
             
             if (numericMark >= 0 && numericMark <= 100) {
                 const module = {
-                    name: `${moduleCode.toUpperCase()} - ${moduleName.trim()}`,
+                    name: `${moduleCodeUpper} - ${moduleName.trim()}`,
                     grade: numericMark,
                     credits: 20.0 // Default credits
                 };
