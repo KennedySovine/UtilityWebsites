@@ -4,17 +4,42 @@ function addClassRow(listId, isDefault = false, defaultName = '', defaultCredits
     const row = document.createElement('div');
     row.className = 'class-row';
     const removeButton = isDefault ? '' : '<button type="button" class="remove-btn" title="Remove module">&times;</button>';
+    
+    // Auto-set credits to 20 for new modules, unless it's a final project or credits are explicitly provided
+    let autoCredits = defaultCredits;
+    if (!defaultCredits && !isDefault) {
+        autoCredits = '20'; // Default to 20 credits for new modules
+    } else if (!defaultCredits && isDefault && defaultName.toLowerCase().includes('project')) {
+        autoCredits = '40'; // Default to 40 credits for final projects
+    } else if (!defaultCredits) {
+        autoCredits = '20'; // Default fallback
+    }
+    
     row.innerHTML = `
         <input type="text" placeholder="Module Name" class="mod-name" value="${defaultName}" ${isDefault ? 'readonly' : ''} />
         <input type="number" min="0" max="100" placeholder="Mark" class="mod-mark" required />
-        <input type="number" min="0" placeholder="Credits" class="mod-credits" required value="${defaultCredits}" />
+        <input type="number" min="0" placeholder="Credits" class="mod-credits" required value="${autoCredits}" />
         ${removeButton}
-    `;
-    
+    `;    
     // Add event listener for credits input to check for 0 credits
     const creditsInput = row.querySelector('.mod-credits');
     const nameInput = row.querySelector('.mod-name');
     const markInput = row.querySelector('.mod-mark');
+    
+    // Add event listener to automatically adjust credits when module name changes
+    nameInput.addEventListener('input', function() {
+        if (!isDefault && this.value.toLowerCase().includes('project')) {
+            // If user types a project name, set credits to 40
+            if (creditsInput.value === '20' || creditsInput.value === '') {
+                creditsInput.value = '40';
+            }
+        } else if (!isDefault && !this.value.toLowerCase().includes('project')) {
+            // If user removes "project" from name, set credits back to 20
+            if (creditsInput.value === '40') {
+                creditsInput.value = '20';
+            }
+        }
+    });
     
     creditsInput.addEventListener('change', async function() {
         console.log('Credits changed to:', this.value);
