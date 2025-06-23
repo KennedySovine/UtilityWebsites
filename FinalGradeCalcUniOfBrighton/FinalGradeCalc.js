@@ -131,6 +131,103 @@ function getClassification(finalGrade) {
     }
 }
 
+function checkBorderlineEligibility(finalGrade, level5Modules, level6Modules) {
+    let borderlineInfo = {
+        isBorderline: false,
+        currentClass: getClassification(finalGrade),
+        potentialClass: null,
+        primaryCriterion: false,
+        secondaryCriterion: false,
+        level6HigherCredits: 0,
+        level5And6HigherCredits: 0,
+        details: []
+    };
+    
+    // Check borderline zones (2% below classification thresholds)
+    let isInBorderlineZone = false;
+    let higherThreshold = 0;
+    let higherClass = "";
+    
+    if (finalGrade >= 68 && finalGrade < 70) {
+        // Borderline for 1st class
+        isInBorderlineZone = true;
+        higherThreshold = 70;
+        higherClass = "First-Class Honours (1st)";
+    } else if (finalGrade >= 58 && finalGrade < 60) {
+        // Borderline for 2:1
+        isInBorderlineZone = true;
+        higherThreshold = 60;
+        higherClass = "Upper Second-Class Honours (2:1)";
+    } else if (finalGrade >= 48 && finalGrade < 50) {
+        // Borderline for 2:2
+        isInBorderlineZone = true;
+        higherThreshold = 50;
+        higherClass = "Lower Second-Class Honours (2:2)";
+    } else if (finalGrade >= 38 && finalGrade < 40) {
+        // Borderline for 3rd
+        isInBorderlineZone = true;
+        higherThreshold = 40;
+        higherClass = "Third-Class Honours (3rd)";
+    }
+    
+    if (!isInBorderlineZone) {
+        return borderlineInfo;
+    }
+    
+    borderlineInfo.isBorderline = true;
+    borderlineInfo.potentialClass = higherClass;
+    
+    // Calculate credits in higher classification for Level 6
+    let level6HigherCredits = 0;
+    let level6TotalCredits = 0;
+    
+    level6Modules.forEach(module => {
+        if (module.grade >= higherThreshold && module.credits > 0) {
+            level6HigherCredits += module.credits;
+        }
+        if (module.credits > 0) {
+            level6TotalCredits += module.credits;
+        }
+    });
+    
+    borderlineInfo.level6HigherCredits = level6HigherCredits;
+    
+    // Primary criterion: 50% or more credits at Level 6 in higher classification
+    if (level6TotalCredits > 0 && (level6HigherCredits / level6TotalCredits) >= 0.5) {
+        borderlineInfo.primaryCriterion = true;
+        borderlineInfo.details.push(`✅ Primary criterion met: ${level6HigherCredits} out of ${level6TotalCredits} Level 6 credits (${((level6HigherCredits / level6TotalCredits) * 100).toFixed(1)}%) at ${higherThreshold}% or above`);
+    } else {
+        borderlineInfo.details.push(`❌ Primary criterion not met: ${level6HigherCredits} out of ${level6TotalCredits} Level 6 credits (${level6TotalCredits > 0 ? ((level6HigherCredits / level6TotalCredits) * 100).toFixed(1) : 0}%) at ${higherThreshold}% or above (need 50%)`);
+    }
+    
+    // Secondary criterion: 50% credits across Levels 5&6 with at least 40 credits at Level 6
+    let level5HigherCredits = 0;
+    let level5TotalCredits = 0;
+    
+    level5Modules.forEach(module => {
+        if (module.grade >= higherThreshold && module.credits > 0) {
+            level5HigherCredits += module.credits;
+        }
+        if (module.credits > 0) {
+            level5TotalCredits += module.credits;
+        }
+    });
+    
+    let totalHigherCredits = level5HigherCredits + level6HigherCredits;
+    let totalCredits = level5TotalCredits + level6TotalCredits;
+    
+    borderlineInfo.level5And6HigherCredits = totalHigherCredits;
+    
+    if (totalCredits > 0 && (totalHigherCredits / totalCredits) >= 0.5 && level6HigherCredits >= 40) {
+        borderlineInfo.secondaryCriterion = true;
+        borderlineInfo.details.push(`✅ Secondary criterion met: ${totalHigherCredits} out of ${totalCredits} total credits (${((totalHigherCredits / totalCredits) * 100).toFixed(1)}%) at ${higherThreshold}% or above, with ${level6HigherCredits} Level 6 credits (need 40+)`);
+    } else {
+        borderlineInfo.details.push(`❌ Secondary criterion not met: ${totalHigherCredits} out of ${totalCredits} total credits (${totalCredits > 0 ? ((totalHigherCredits / totalCredits) * 100).toFixed(1) : 0}%) at ${higherThreshold}% or above, with ${level6HigherCredits} Level 6 credits (need 50% total and 40+ Level 6 credits)`);
+    }
+    
+    return borderlineInfo;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // Add one row by default for Level 5
     addClassRow('l5-list');
@@ -156,18 +253,66 @@ document.addEventListener('DOMContentLoaded', () => {
         if (file) {
             processGradeSheet(file);
         }
-    });
-
-    document.getElementById('gradeForm').onsubmit = function(e) {
-        e.preventDefault();        const l5Avg = getWeightedAverage('l5-list');
+    });    document.getElementById('gradeForm').onsubmit = function(e) {
+        e.preventDefault();
+        const l5Avg = getWeightedAverage('l5-list');
         const l6Avg = getWeightedAverage('l6-list');
         const finalGrade = (l5Avg * 0.25) + (l6Avg * 0.75);
         const classification = getClassification(finalGrade);
         
+        // Get module data for borderline analysis
+        const level5ModuleData = [];
+        const level6ModuleData = [];
+        
+        // Extract Level 5 module data
+        document.getElementById('l5-list').querySelectorAll('.class-row').forEach(row => {
+            const grade = parseFloat(row.querySelector('.mod-mark').value);
+            const credits = parseFloat(row.querySelector('.mod-credits').value);
+            if (!isNaN(grade) && !isNaN(credits) && credits > 0) {
+                level5ModuleData.push({ grade, credits });
+            }
+        });
+        
+        // Extract Level 6 module data
+        document.getElementById('l6-list').querySelectorAll('.class-row').forEach(row => {
+            const grade = parseFloat(row.querySelector('.mod-mark').value);
+            const credits = parseFloat(row.querySelector('.mod-credits').value);
+            if (!isNaN(grade) && !isNaN(credits) && credits > 0) {
+                level6ModuleData.push({ grade, credits });
+            }
+        });
+        
+        // Check borderline eligibility
+        const borderlineInfo = checkBorderlineEligibility(finalGrade, level5ModuleData, level6ModuleData);
+        
         let resultText = `<strong>Level 5 Weighted Average:</strong> ${l5Avg.toFixed(2)}<br>`;
         resultText += `<strong>Level 6 Weighted Average:</strong> ${l6Avg.toFixed(2)}<br>`;
         resultText += `<strong>Final Grade:</strong> ${finalGrade.toFixed(2)}<br>`;
-        resultText += `<strong>Degree Classification:</strong> ${classification}`;
+        resultText += `<strong>Current Classification:</strong> ${classification}<br>`;
+        
+        // Add borderline analysis if applicable
+        if (borderlineInfo.isBorderline) {
+            resultText += `<br><div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 5px; padding: 15px; margin: 10px 0;">`;
+            resultText += `<h4 style="margin: 0 0 10px 0; color: #856404;">🎯 Borderline Classification Analysis</h4>`;
+            resultText += `<p style="margin: 5px 0;"><strong>You are in the 2% borderline zone for ${borderlineInfo.potentialClass}!</strong></p>`;
+            
+            if (borderlineInfo.primaryCriterion || borderlineInfo.secondaryCriterion) {
+                resultText += `<p style="margin: 5px 0; color: #28a745;"><strong>✅ POSSIBLE UPGRADE: You may be eligible for ${borderlineInfo.potentialClass}</strong></p>`;
+                resultText += `<p style="margin: 5px 0; font-size: 0.9em; color: #666;"><em>Note: This is not guaranteed - final decisions are made by the Examination Board.</em></p>`;
+            } else {
+                resultText += `<p style="margin: 5px 0; color: #dc3545;"><strong>❌ Upgrade criteria not met</strong></p>`;
+                resultText += `<p style="margin: 5px 0; font-size: 0.9em; color: #666;"><em>You remain at ${borderlineInfo.currentClass}</em></p>`;
+            }
+            
+            resultText += `<details style="margin: 10px 0;"><summary style="cursor: pointer; font-weight: bold;">📋 Detailed Analysis</summary>`;
+            resultText += `<div style="margin: 10px 0; font-size: 0.9em;">`;
+            borderlineInfo.details.forEach(detail => {
+                resultText += `<p style="margin: 3px 0;">${detail}</p>`;
+            });
+            resultText += `</div></details>`;
+            resultText += `</div>`;
+        }
+        
         document.getElementById('result').innerHTML = resultText;
     };
 });
