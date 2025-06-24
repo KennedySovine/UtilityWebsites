@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report to Markdown Converter</title>
+    <!-- External CSS -->
+    <link rel="stylesheet" href="RTM.css">
+    <!-- Mammoth.js for Word document conversion -->
+    <script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
+</head>
+<body>
+    <h1>📄 Report to Markdown Converter</h1>
+    <p>Upload a Word document (.docx) to convert it to Markdown format</p>
+    
+    <div class="file-input">
+        <input type="file" id="docxFile" accept=".docx" />
+        <button onclick="convertToMarkdown()">Convert to Markdown</button>
+    </div>
+    
+    <div class="container">
+        <div class="panel">
+            <h3>📋 HTML Preview</h3>
+            <div id="htmlOutput">Upload a .docx file to see HTML output here...</div>
+        </div>
+        
+        <div class="panel">
+            <h3>📝 Markdown Output</h3>
+            <textarea id="markdownOutput">Upload a .docx file to see Markdown output here...</textarea>
+            <button onclick="copyMarkdown()" style="margin-top: 10px;">Copy Markdown</button>
+        </div>
+    </div>
+
+    <!-- External JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>
