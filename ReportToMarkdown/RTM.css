@@ -46,6 +46,7 @@ body {
     background: #ffffff;
     min-width: 0;
     contain: layout;
+    white-space: normal;
 }
 
 #htmlOutput * {
@@ -59,32 +60,48 @@ body {
 #htmlOutput h4, #htmlOutput h5, #htmlOutput h6 {
     font-weight: 600;
     line-height: 1.25;
-    margin-bottom: 16px;
-    margin-top: 24px;
+    margin-bottom: 12px;
+    margin-top: 16px;
     color: #1f2328;
 }
 
 #htmlOutput h1 {
-    font-size: 2em;
+    font-size: 1.4em;
     border-bottom: 1px solid #d1d9e0;
     padding-bottom: 0.3em;
+    font-weight: 600;
 }
 
 #htmlOutput h2 {
-    font-size: 1.5em;
+    font-size: 1.2em;
     border-bottom: 1px solid #d1d9e0;
     padding-bottom: 0.3em;
+    font-weight: 600;
 }
 
-#htmlOutput h3 { font-size: 1.25em; }
-#htmlOutput h4 { font-size: 1em; }
-#htmlOutput h5 { font-size: 0.875em; }
-#htmlOutput h6 { font-size: 0.85em; color: #656d76; }
+#htmlOutput h3 { 
+    font-size: 1.1em; 
+    font-weight: 600;
+}
+#htmlOutput h4 { 
+    font-size: 0.95em; 
+    font-weight: 600;
+}
+#htmlOutput h5 { 
+    font-size: 0.85em; 
+    font-weight: 600;
+}
+#htmlOutput h6 { 
+    font-size: 0.8em; 
+    color: #656d76; 
+    font-weight: 600;
+}
 
 #htmlOutput p {
-    margin-bottom: 16px;
-    line-height: 1.6;
+    margin-bottom: 12px;
+    line-height: 1.5;
     color: #1f2328;
+    font-size: 0.9em;
 }
 
 #htmlOutput a {
@@ -97,40 +114,42 @@ body {
 }
 
 #htmlOutput ul, #htmlOutput ol {
-    margin-bottom: 16px;
-    padding-left: 2em;
+    margin-bottom: 12px;
+    padding-left: 1.5em;
+    font-size: 0.9em;
 }
 
 #htmlOutput li {
-    margin-bottom: 0.25em;
-    line-height: 1.6;
+    margin-bottom: 0.2em;
+    line-height: 1.5;
 }
 
 #htmlOutput blockquote {
-    padding: 0 1em;
+    padding: 0 0.8em;
     color: #656d76;
     border-left: 0.25em solid #d1d9e0;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
     background: transparent;
+    font-size: 0.9em;
 }
 
 #htmlOutput code {
     background-color: rgba(175,184,193,0.2);
-    border-radius: 6px;
-    font-size: 85%;
+    border-radius: 4px;
+    font-size: 0.8em;
     margin: 0;
-    padding: 0.2em 0.4em;
+    padding: 0.15em 0.3em;
     font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
 }
 
 #htmlOutput pre {
     background-color: #f6f8fa;
     border-radius: 6px;
-    font-size: 85%;
-    line-height: 1.45;
+    font-size: 0.8em;
+    line-height: 1.4;
     overflow: auto;
-    padding: 16px;
-    margin-bottom: 16px;
+    padding: 12px;
+    margin-bottom: 12px;
 }
 
 #htmlOutput pre code {
@@ -148,16 +167,17 @@ body {
     border-collapse: collapse;
     border-spacing: 0;
     display: table;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
     overflow: auto;
     width: 100%;
     max-width: 100%;
     table-layout: fixed;
+    font-size: 0.85em;
 }
 
 #htmlOutput table th, #htmlOutput table td {
     border: 1px solid #d1d9e0;
-    padding: 6px 13px;
+    padding: 4px 8px;
 }
 
 #htmlOutput table th {

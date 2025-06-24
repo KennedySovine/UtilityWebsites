@@ -21,10 +21,9 @@ async function convertToMarkdown() {
         
         // Display HTML output
         document.getElementById('htmlOutput').innerHTML = result.value;
-        
-        // Convert HTML to Markdown (basic conversion)
+          // Convert HTML to Markdown (basic conversion)
         const markdown = htmlToMarkdown(result.value);
-        document.getElementById('markdownOutput').textContent = markdown;
+        document.getElementById('markdownOutput').value = markdown;
         
         // Log any conversion messages/warnings
         if (result.messages.length > 0) {
@@ -143,7 +142,7 @@ function htmlToMarkdown(html) {
 }
 
 function copyMarkdown() {
-    const markdownText = document.getElementById('markdownOutput').textContent;
+    const markdownText = document.getElementById('markdownOutput').value;
     if (markdownText && markdownText !== 'Upload a .docx file to see Markdown output here...') {
         navigator.clipboard.writeText(markdownText).then(() => {
             alert('Markdown copied to clipboard!');
