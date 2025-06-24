@@ -26,9 +26,12 @@
         
         <div class="panel">
             <h3>📝 Markdown Output</h3>
-            <div id="markdownOutput" class="output">Upload a .docx file to see Markdown output here...</div>
+            <textarea id="markdownOutput" class="output" style="width:100%;height:200px;">Upload a .docx file to see Markdown output here...</textarea>
             <button onclick="copyMarkdown()" style="margin-top: 10px;">Copy Markdown</button>
+            <button onclick="updateHtmlPreview()" style="margin-top: 10px;">Update HTML Preview</button>
         </div>
+        <!-- Add marked.js for Markdown parsing -->
+        <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     </div>
 
     <!-- External JavaScript -->

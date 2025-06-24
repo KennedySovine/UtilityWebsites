@@ -94,3 +94,14 @@ function copyMarkdown() {
         alert('No markdown content to copy');
     }
 }
+
+function updateHtmlPreview(){
+    const markdown = document.getElementById('markdownOutput').value;
+    // Simple Markdown to HTML conversion using marked.js (add the library to your project)
+    if (window.marked) {
+        document.getElementById('htmlOutput').innerHTML = marked.parse(markdown);
+    } 
+    else {
+        document.getElementById('htmlOutput').innerText = "Markdown parser not loaded.";
+    }
+}
